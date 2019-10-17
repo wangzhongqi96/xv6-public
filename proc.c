@@ -12,6 +12,10 @@ struct {
   struct proc proc[NPROC];
 } ptable;
 
+char *Instructions[23] = {"",
+"fork","exit","wait","pipe","read","kill","exec","fstat","chdir","dup","getpid","sbrk","sleep","uptime","open","write","mknod","unlink","link","mkdir","close","info"};
+
+
 static struct proc *initproc;
 
 int nextpid = 1;
@@ -531,4 +535,78 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int
+info(int param){
+  cprintf("%d\n",param);
+  switch (param)
+  {
+    case 1:{
+      struct proc *process;	
+      sti();
+      acquire(&ptable.lock);
+      int count = 0;
+      for(process = ptable.proc; process < &ptable.proc[NPROC]; process++){
+      switch (process->state){
+        case RUNNING:
+          cprintf("%s is RUNNING,pid=%d\n",process->name,process->pid);
+          count++;
+          break;
+        case SLEEPING:
+          cprintf("%s is SLEEPING,pid=%d\n",process->name,process->pid);
+          count++;
+          break;
+        default:
+          //cprintf("%s is unknown,pid=%d\n",p->name,p->pid);
+          break;
+        }
+      }
+      cprintf("There are %d processes in the system now.\n",count);
+      release(&ptable.lock);
+      break;
+    }
+    case 2:{
+      cprintf("The total times of system calling is %d\n",Totalcalling);
+      cprintf("*******************************************************************\n");
+      struct proc *process;
+      acquire(&ptable.lock);
+      int account = 0;
+      int count = 0;
+      for(process = ptable.proc; process < &ptable.proc[NPROC]; process++)
+      {
+        if (process->callingtimes){
+          count = 0;
+          int i;
+          for (i=1;i<23;i++){
+            if (process->Flag[i])
+              cprintf("%s uses %s %d times\n",process->name,Instructions[i],process->Flag[i]);
+              count++;       
+          }
+          cprintf("%s uses %d kinds of system call for %d times\n",process->name,count,process->callingtimes);
+          cprintf("*******************************************************************\n");
+        }
+          account+=count;
+      }
+      cprintf("The total kinds of system calls made so far is %d\n",account);
+      release(&ptable.lock);
+      break;
+    }  
+    case 3:{
+      struct proc *process;
+      acquire(&ptable.lock);
+      for(process = ptable.proc; process < &ptable.proc[NPROC]; process++)
+      {
+        if (process->callingtimes){
+          cprintf("%s \tMemory Pages: %d PageDir: %x\n",process->name,process->sz/PGSIZE,*(process->pgdir));
+        }
+    
+      }
+       release(&ptable.lock);
+      break;
+    }   
+    default:
+      break;
+  }
+  return 0;
 }

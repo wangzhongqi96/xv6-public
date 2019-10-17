@@ -73,7 +73,7 @@ readsect(void *dst, uint offset)
   insl(0x1F0, dst, SECTSIZE/4);
 }
 
-// Read 'count' bytes at 'offset' from kernel into physical address 'pa'.
+// Read '' bytes at 'offset' from kernel into physical address 'pa'.
 // Might copy more than asked.
 void
 readseg(uchar* pa, uint count, uint offset)
