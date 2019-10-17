@@ -8,3 +8,4 @@ int main(int argc, char **argv){
     info(atoi(argv[1]));
     exit();
 }
+//https://windows-hexerror.linestarve.com/q/so57745250-How-to-add-a-system-call-to-find-the-number-of-processes-in-xv6
